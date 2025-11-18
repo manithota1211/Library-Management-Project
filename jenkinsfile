@@ -95,16 +95,17 @@ pipeline {
                 }
             }
         }
-dir('Library-Management-Project') {
-    stage('Deploy to Kubernetes') {
-        steps {
-            sh """
-            kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE} --validate=false
-            kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE} --validate=false
-            """
+        stage('Deploy to Kubernetes') {
+            steps {
+                dir('Library-Management-Project') {
+                    sh """
+                    kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE} --validate=false
+                    kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE} --validate=false
+                    """
+                }
+            }
         }
-    }
-}
+
 
 
 
