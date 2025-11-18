@@ -97,17 +97,16 @@ pipeline {
         }
         stage('Deploy to Kubernetes') {
             steps {
-                withAWS(credentials: 'aws_cred', region: "${params.AWS_REGION}") {
-                    sh """
-                    mkdir -p $HOME/.kube
-                    chmod 700 $HOME/.kube
-                    aws eks update-kubeconfig --name mani-cluster --region ${params.AWS_REGION} --alias mani-cluster
-                    kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE}
-                    kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE}
-                    """
-                }
+                sh """
+                mkdir -p /var/lib/jenkins/.kube
+                chmod 700 /var/lib/jenkins/.kube
+                aws eks update-kubeconfig --name mani-cluster --region ${params.AWS_REGION} --alias mani-cluster
+                kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE}
+                kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE}
+                """
             }
         }
+
 
 
     }
