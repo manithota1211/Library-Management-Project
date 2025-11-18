@@ -130,9 +130,6 @@ pipeline {
                         kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE}
                         echo "Deploying Application..."
                         kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE}
-                        echo "Deploying Ingress..."
-                        kubectl apply -f k8s/ingress.yaml -n ${params.K8s_NAMESPACE}
-
                         echo "Checking deployments..."
                         kubectl get deployments -n ${params.K8s_NAMESPACE}
                         """
