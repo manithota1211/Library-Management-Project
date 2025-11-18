@@ -62,7 +62,7 @@ pipeline {
             steps {
                 script {
                     echo " Pushing docker image to ECR"
-                    withAWS(credentials: 'AWS_CRED', region: "${params.AWS_REGION}") {
+                    withAWS(credentials: 'aws_cred', region: "${params.AWS_REGION}") {
                         sh """
                         aws ecr get-login-password --region ${params.AWS_REGION} | docker login --username AWS --password-stdin ${params.FRONTEND_REPO}
                         docker tag ${params.FRONTEND_REPO}:${params.IMAGE_TAG} ${params.FRONTEND_REPO}:${params.Version}
@@ -72,7 +72,7 @@ pipeline {
                 }
                 script {
                     echo " Pushing docker image to ECR"
-                    withAWS(credentials: 'AWS_CRED', region: "${params.AWS_REGION}") {
+                    withAWS(credentials: 'aws_cred', region: "${params.AWS_REGION}") {
                         sh """
                         aws ecr get-login-password --region ${params.AWS_REGION} | docker login --username AWS --password-stdin ${params.BACKEND_REPO}
                         docker tag ${params.BACKEND_REPO}:${params.IMAGE_TAG} ${params.BACKEND_REPO}:${params.Version}
