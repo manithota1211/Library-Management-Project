@@ -15,4 +15,4 @@ spec:
               service:
                 name: library-frontend-service
                 port:
-                  number: 3005
+                  number: 80
