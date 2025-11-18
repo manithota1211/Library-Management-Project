@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: library-service-deployment
+  labels:
+    first: app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: library-order-container
+          image: manikanta1432/library-project:v1.1.0
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: MONGODB_URI
+              value: "mongodb://mongodb-service:27017/libraryDB"
+          
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: library-order-service
+spec:
+  type: ClusterIP
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 83
+      targetPort: 3000
+
+            
