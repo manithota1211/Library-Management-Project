@@ -2,6 +2,11 @@
 const connectDB = require("./db");
 connectDB(); // Connect to MongoDB
 
+const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://mongodb-service:27017/libraryDB";
+connectDB(MONGODB_URI);
+
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -10,7 +15,6 @@ const session = require("express-session");
 const authRoutes = require("./routes/authRoutes"); // Import authentication routes
 
 const app = express();
-const PORT = 3000;
 
 // Middleware to parse JSON and form data
 app.use(bodyParser.json());
