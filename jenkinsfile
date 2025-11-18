@@ -110,6 +110,17 @@ pipeline {
             }
         }
 
+        stage('Create Namespace') {
+            steps {
+                script {
+                    sh """
+                    echo "Checking if namespace '${params.K8s_NAMESPACE}' exists..."
+                    kubectl get namespace ${params.K8s_NAMESPACE} || kubectl create namespace ${params.K8s_NAMESPACE}
+                    """
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
@@ -126,8 +137,6 @@ pipeline {
                 }
             }
         }
-
-
 
 
 
