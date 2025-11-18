@@ -15,27 +15,25 @@ spec:
         app: frontend
     spec:
       containers:
-        - name: library-frontend-container
-          image: IMAGE_FRONTEND_PLACEHOLDER
-          ports:
-            - containerPort: 3000
-          env:
-            - name: PORT
-              value: "3000"
-            - name: MONGODB_URI
-              value: "mongodb://mongodb-service:27017/libraryDB"
-
+      - name: library-frontend-container
+        image: IMAGE_FRONTEND_PLACEHOLDER
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+        - name: MONGODB_URI
+          value: "mongodb://mongodb-service:27017/libraryDB"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: library-frontend-service
-  namespace: dev
 spec:
   type: LoadBalancer
   selector:
     app: frontend
   ports:
-    - protocol: TCP
-      port: 80        # External port
-      targetPort: 3000 # Container port
+  - protocol: TCP
+    port: 80       # external LB port
+    targetPort: 3000
