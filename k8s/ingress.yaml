@@ -2,13 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: library-frontend-ingress
+  namespace: dev
   annotations:
     kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
-    - host: afc20c5360fa344718ab7cfaf1ab0770-1341063792.ap-south-1.elb.amazonaws.com
-
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix
