@@ -99,7 +99,6 @@ pipeline {
             steps {
                 script {
                     echo "Deploying to Kubernetes namespace: ${params.K8s_NAMESPACE}"
-
                     sh "kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE}"
                     sh "kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE}"
                 }
