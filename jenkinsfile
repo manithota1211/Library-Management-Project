@@ -98,14 +98,11 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 withAWS(credentials: 'aws_cred', region: "${params.AWS_REGION}") {
-                    sh '''
-                    # Generate kubeconfig dynamically
-                    aws eks update-kubeconfig --name mani-cluster --region ${AWS_REGION} --alias mani-cluster
-
-                    # Disable validation to avoid OpenAPI fetch errors (optional)
-                    kubectl apply -f k8s/mongo.yaml -n ${K8s_NAMESPACE} --validate=false
-                    kubectl apply -f k8s/deployment.yaml -n ${K8s_NAMESPACE} --validate=false
-                    '''
+                    sh """
+                    aws eks update-kubeconfig --name mani-cluster --region ${params.AWS_REGION} --alias mani-cluster
+                    kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE}
+                    kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE}
+                    """
                 }
             }
         }
