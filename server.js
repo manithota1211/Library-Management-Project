@@ -1,11 +1,9 @@
 // server.js
 const connectDB = require("./db");
-connectDB(); // Connect to MongoDB
 
-const PORT = process.env.PORT || 3000;
+// Use environment variable or default Kubernetes MongoDB service
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://mongodb-service:27017/libraryDB";
 connectDB(MONGODB_URI);
-
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -48,6 +46,7 @@ app.get("/admin", (req, res) => {
 });
 
 // Start server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });
