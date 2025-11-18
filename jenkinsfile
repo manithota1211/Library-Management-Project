@@ -95,15 +95,37 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Kubernetes') {
+        stage('Configure EKS Access') {
             steps {
-                sh """
-                kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE} --validate=false
-                kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE} --validate=false
-                """
+                script {
+                    withAWS(credentials: 'aws_cred', region: "${params.AWS_REGION}") {
+                        sh """
+                        aws eks update-kubeconfig --region ${params.AWS_REGION} --name mani-cluster --role-arn arn:aws:iam::820198200488:role/eks_access
+                        echo "=== Testing EKS Access ==="
+                        kubectl get nodes
+                        kubectl auth can-i create deployments -n ${params.K8s_NAMESPACE}
+                        """
+                    }
+                }
             }
         }
 
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    withAWS(credentials: 'aws_cred', region: "${params.AWS_REGION}") {
+                        sh """
+                        echo "Deploying MongoDB..."
+                        kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE}
+                        echo "Deploying Application..."
+                        kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE}
+                        echo "Checking deployments..."
+                        kubectl get deployments -n ${params.K8s_NAMESPACE}
+                        """
+                    }
+                }
+            }
+        }
 
 
 
