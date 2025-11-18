@@ -106,17 +106,14 @@ pipeline {
             steps {
                 script {
                     echo "Updating deployments with new images..."
-                    # Replace placeholders in deployment files
                     sh """
                     sed -i 's|IMAGE_FRONTEND_PLACEHOLDER|${params.FRONTEND_REPO}:${params.Version}|g' k8s/frontend-deployment.yaml
                     sed -i 's|IMAGE_BACKEND_PLACEHOLDER|${params.BACKEND_REPO}:${params.Version}|g' k8s/backend-deployment.yaml
                     """
 
-                    # Apply deployments
                     sh "kubectl apply -f k8s/frontend-deployment.yaml -n ${params.K8s_NAMESPACE}"
                     sh "kubectl apply -f k8s/backend-deployment.yaml -n ${params.K8s_NAMESPACE}"
 
-                    # Ensure MONGODB_URI is set in frontend and backend
                     sh """
                     kubectl set env deployment/library-frontend-deployment MONGODB_URI=mongodb://mongodb-service:27017/libraryDB -n ${params.K8s_NAMESPACE}
                     kubectl set env deployment/library-backend-deployment MONGODB_URI=mongodb://mongodb-service:27017/libraryDB -n ${params.K8s_NAMESPACE}
