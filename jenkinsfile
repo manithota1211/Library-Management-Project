@@ -1,0 +1,119 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+        name: 'ENVIRONMENT',
+        choices: ['dev', 'qa', 'prod'],
+        description: 'Select environment to deploy')
+        string(
+            name: 'Version', 
+            description: 'Enter the app version'
+        )
+        string(
+            name: 'IMAGE_TAG',
+            defaultValue: 'latest',
+            description: 'Enter the docker image tag'
+        )
+        string(
+            name: 'AWS_REGION',
+            defaultValue: 'ap-south-1',
+            description: 'Enter AWS region to deploy'
+        )
+        string(
+            name: 'FRONTEND_REPO',
+            defaultValue: '820198200488.dkr.ecr.ap-south-1.amazonaws.com/pipeline',
+            description:  '820198200488.dkr.ecr.ap-south-1.amazonaws.com'
+        )
+        string(
+            name: 'BACKEND_REPO',
+            defaultValue: '820198200488.dkr.ecr.ap-south-1.amazonaws.com/pipeline-backend',
+            description: '820198200488.dkr.ecr.ap-south-1.amazonaws.com'
+        )
+        string(
+            name: 'K8s_NAMESPACE',
+            defaultValue: 'dev',
+            description: 'Enter the k8s namespace to deploy'
+        )
+    }
+
+    environment {
+        AWS_CRED = credentials('aws_cred')
+
+    }
+    stages {
+        stage('Clone') {
+            steps {
+                echo " Cloning repository"
+                git url: "https://github.com/manithota1211/Library-Management-Project.git",
+                branch: 'master'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                echo " Building Docker Image: ${IMAGE_TAG} "
+                sh "docker build -t ${params.FRONTEND_REPO}:${params.IMAGE_TAG} -f Dockerfile ."
+
+                echo " building docker image: ${IMAGE_TAG} "
+                sh "docker build -t ${params.BACKEND_REPO}:${params.IMAGE_TAG} -f Dockerfile.backend ."
+            }
+        }
+        stage('Push to ECR') {
+            steps {
+                script {
+                    echo " Pushing docker image to ECR"
+                    withAWS(credentials: 'aws_cred', region: "${params.AWS_REGION}") {
+                        sh """
+                        aws ecr get-login-password --region ${params.AWS_REGION} | docker login --username AWS --password-stdin ${params.FRONTEND_REPO}
+                        docker tag ${params.FRONTEND_REPO}:${params.IMAGE_TAG} ${params.FRONTEND_REPO}:${params.Version}
+                        docker push ${params.FRONTEND_REPO}:${params.Version}
+                    """
+                    }
+                }
+                script {
+                    echo " Pushing docker image to ECR"
+                    withAWS(credentials: 'aws_cred', region: "${params.AWS_REGION}") {
+                        sh """
+                        aws ecr get-login-password --region ${params.AWS_REGION} | docker login --username AWS --password-stdin ${params.BACKEND_REPO}
+                        docker tag ${params.BACKEND_REPO}:${params.IMAGE_TAG} ${params.BACKEND_REPO}:${params.Version}
+                        docker push ${params.BACKEND_REPO}:${params.Version}
+                    """
+                    }
+                }
+            }
+        }
+        stage('Update Kubernetes Manifests') {
+            steps {
+                script {
+                    echo "Updating image tags in Kubernetes manifests"
+
+                    // Frontend
+                    sh "sed -i 's|IMAGE_FRONTEND_PLACEHOLDER|${params.FRONTEND_REPO}:${params.Version}|g' k8s/deployment.yaml"
+
+                    // Backend
+                    sh "sed -i 's|IMAGE_BACKEND_PLACEHOLDER|${params.BACKEND_REPO}:${params.Version}|g' k8s/deployment.yaml"
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    echo "Deploying to Kubernetes namespace: ${params.K8s_NAMESPACE}"
+
+                    sh "kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE}"
+                    sh "kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE}"
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "Deployment to ${params.ENVIRONMENT} environment successful!"
+        }
+        failure {
+            echo "Deployment to ${params.ENVIRONMENT} environment failed."
+        }
+    }
+}
