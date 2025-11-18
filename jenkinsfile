@@ -96,15 +96,17 @@ pipeline {
             }
         }
         stage('Deploy to Kubernetes') {
-            steps {
-                withKubeConfig([credentialsId: 'kubeconfig_mani', contextName: 'mani-cluster']) {
-                    sh """
-                    kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE}
-                    kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE}
-                    """
-                }
+    steps {
+        withAWS(credentials: 'aws_cred', region: "${params.AWS_REGION}") {
+            withKubeConfig([credentialsId: 'kubeconfig_mani', contextName: 'mani-cluster']) {
+                sh """
+                kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE}
+                kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE}
+                """
             }
         }
+    }
+}
 
     }
 
