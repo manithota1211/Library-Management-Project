@@ -2,8 +2,8 @@
 const connectDB = require("./db");
 
 // Use environment variable or default Kubernetes MongoDB service
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://mongodb-service:27017/libraryDB";
-connectDB(MONGODB_URI);
+const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/library';
+connectDB(mongoURI);
 
 const express = require("express");
 const bodyParser = require("body-parser");
