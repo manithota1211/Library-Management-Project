@@ -90,8 +90,7 @@ pipeline {
                 script {
                     echo "Updating image tags in Kubernetes manifests"
                     sh """
-                    sed -i -e "s|IMAGE_FRONTEND_PLACEHOLDER|${params.FRONTEND_REPO}:${params.Version}|g" \
-                           -e "s|IMAGE_BACKEND_PLACEHOLDER|${params.BACKEND_REPO}:${params.Version}|g" k8s/deployment.yaml
+                    sed -i "s|YOUR_FRONTEND_IMAGE|${params.FRONTEND_REPO}:${params.Version}|g" k8s/deployment.yaml
                     """
                 }
             }
