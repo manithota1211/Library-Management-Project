@@ -89,8 +89,6 @@ pipeline {
             steps {
                 script {
                     echo "Updating image tags in Kubernetes manifests"
-
-                    // Replace placeholders in a single command
                     sh """
                     sed -i -e "s|IMAGE_FRONTEND_PLACEHOLDER|${params.FRONTEND_REPO}:${params.Version}|g" \
                            -e "s|IMAGE_BACKEND_PLACEHOLDER|${params.BACKEND_REPO}:${params.Version}|g" k8s/deployment.yaml
@@ -138,13 +136,6 @@ pipeline {
 
                         kubectl get pods -n ${params.K8s_NAMESPACE}
                         """
-                    }
-                }
-            }
-        }
-    }
-}
-
                     }
                 }
             }
