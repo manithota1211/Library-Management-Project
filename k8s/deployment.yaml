@@ -49,6 +49,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
 spec:
+  ingressClassName: nginx
   rules:
     - http:
         paths:
@@ -59,3 +60,4 @@ spec:
                 name: library-frontend-service
                 port:
                   number: 80
+
