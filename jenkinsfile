@@ -130,13 +130,21 @@ pipeline {
                         sh """
                         echo "Deploying MongoDB..."
                         kubectl apply -f k8s/mongo.yaml -n ${params.K8s_NAMESPACE}
-                        kubectl rollout status statefulset/mongodb -n ${params.K8s_NAMESPACE}
+                        kubectl rollout status deployment/mongodb -n ${params.K8s_NAMESPACE}
 
                         echo "Deploying Application..."
                         kubectl apply -f k8s/deployment.yaml -n ${params.K8s_NAMESPACE}
                         kubectl rollout status deployment/library-frontend-deployment -n ${params.K8s_NAMESPACE}
-                        kubectl rollout status deployment/library-backend-deployment -n ${params.K8s_NAMESPACE}
+
+                        kubectl get pods -n ${params.K8s_NAMESPACE}
                         """
+                    }
+                }
+            }
+        }
+    }
+}
+
                     }
                 }
             }
